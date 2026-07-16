@@ -7,6 +7,8 @@ import "pdfjs-dist/build/pdf.worker.entry";
 // new code
 import {IconButton} from "@fluentui/react";
 
+import type { RenderParameters } from "pdfjs-dist/types/src/display/api";
+
 interface IProps {
   fileUrl: string;
   onClose: () => void;
@@ -14,7 +16,7 @@ interface IProps {
 
 const FlipBookViewer: React.FC<IProps> = ({ fileUrl, onClose }) => {
 
-const FlipBook = HTMLFlipBook as any; 
+const FlipBook = HTMLFlipBook as unknown as React.ComponentType<Record<string, unknown>>;
 const [pages, setPages] = React.useState<string[]>([]);
 const [zoom, setZoom] = React.useState(1);
 const [isFullScreen, setIsFullScreen] = React.useState(false);
@@ -22,17 +24,39 @@ const containerRef = React.useRef<HTMLDivElement>(null);
 
 // new code
 const [currentPage, setCurrentPage] = React.useState(1);
-const flipBookRef = React.useRef<any>(null);
+const flipBookRef = React.useRef<{
+  pageFlip: () => {
+    flipNext: () => void;
+    flipPrev: () => void;
+  };
+} | null>(null);
 
-const zoomIn = () => setZoom(prev => Math.min(prev + 0.2, 2));
-const zoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.6));
-const toggleFullScreen = () => {
+const zoomIn = (): void => setZoom(prev => Math.min(prev + 0.2, 2));
+const zoomOut = (): void => setZoom(prev => Math.max(prev - 0.2, 0.6));
+// const toggleFullScreen = () => {
+//   if (!document.fullscreenElement) {
+//     containerRef.current?.requestFullscreen();
+//     setIsFullScreen(true);
+//   } else {
+//     document.exitFullscreen();
+//     setIsFullScreen(false);
+//   }
+// };
+const toggleFullScreen = (): void => {
   if (!document.fullscreenElement) {
-    containerRef.current?.requestFullscreen();
-    setIsFullScreen(true);
+  containerRef.current
+      ?.requestFullscreen()
+      .then(() => {
+        setIsFullScreen(true);
+      })
+      .catch((error) => {
+        console.error("Failed to enter fullscreen:", error);
+      });
   } else {
-    document.exitFullscreen();
-    setIsFullScreen(false);
+    document.exitFullscreen().catch((error) => {
+      console.error("Error loading fullscreen:", error);
+      setIsFullScreen(false);
+    });
   }
 };
 
@@ -46,11 +70,60 @@ const prevPage = (): void => {
 };
 //
 
-  React.useEffect(() => {
-    loadPdf();
-  }, [fileUrl]);
+ React.useEffect(() => {
+  loadPdf().catch((error) => {
+    console.error("Error loading PDF:", error);
+  });
+}, [fileUrl]);
 
-const loadPdf = async () => {
+// async function loadPdf(): Promise<void>{
+//   try {
+//     console.log("Loading PDF:", fileUrl);
+
+//     // ✅ Fetch file using SharePoint auth
+//     const response = await fetch(fileUrl, {
+//       headers: {
+//         "Accept": "application/pdf"
+//       },
+//       credentials: "include"
+//     });
+
+//     const blob = await response.blob();
+
+//     // ✅ Convert blob to URL
+//     const blobUrl = URL.createObjectURL(blob);
+
+//     const pdf = await pdfjsLib.getDocument(blobUrl).promise;
+
+//     const tempPages: string[] = [];
+
+//     for (let i = 1; i <= pdf.numPages; i++) {
+//       const page = await pdf.getPage(i);
+//       const viewport = page.getViewport({ scale: 1.5 });
+
+//       const canvas = document.createElement("canvas");
+//       const context = canvas.getContext("2d");
+
+//       canvas.height = viewport.height;
+//       canvas.width = viewport.width;
+
+//       await page.render({
+//         canvasContext: context!,
+//         viewport,
+//         canvas
+//       } as any).promise;
+
+//       tempPages.push(canvas.toDataURL());
+//     }
+
+//     setPages(tempPages);
+
+//   } catch (error) {
+//     console.error("PDF Load Error:", error);
+//   }
+// };
+
+async function loadPdf(): Promise<void>{
   try {
     console.log("Loading PDF:", fileUrl);
 
@@ -81,11 +154,17 @@ const loadPdf = async () => {
       canvas.height = viewport.height;
       canvas.width = viewport.width;
 
-      await page.render({
-        canvasContext: context!,
-        viewport,
-        canvas
-      } as any).promise;
+      // await page.render({
+      //   canvasContext: context!,
+      //   viewport,
+      //   canvas
+      // } as any).promise;
+
+    const renderContext: RenderParameters = {
+          canvasContext: context!,
+          viewport
+        };
+    await page.render(renderContext).promise;
 
       tempPages.push(canvas.toDataURL());
     }
@@ -95,7 +174,8 @@ const loadPdf = async () => {
   } catch (error) {
     console.error("PDF Load Error:", error);
   }
-};
+}
+
 
 React.useEffect(() => {
 
@@ -190,7 +270,7 @@ React.useEffect(() => {
           showCover={true}
           mobileScrollSupport={true}
           clickEventForward={false}
-          onFlip={(e: any) =>
+          onFlip={(e: { data: number }) =>
             setCurrentPage(e.data + 1)
           }
         >

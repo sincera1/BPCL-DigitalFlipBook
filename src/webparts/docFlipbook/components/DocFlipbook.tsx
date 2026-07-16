@@ -12,18 +12,27 @@ import "@pnp/sp/items";
 import FlipBookViewer from './FlipBookViewer';
 
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 interface IProps {
-  context: any;
+  context: WebPartContext;
   libraryName: string;
 }
-
+interface IDocumentItem {
+  Id: number;
+  FileLeafRef: string;
+  FileRef: string;
+  Year: string;
+  UniqueId: string;
+}
 const DocFlipbook: React.FC<IProps> = ({ context, libraryName }) => {
 
  const currentYear = new Date().getFullYear().toString();
 
-const [docs, setDocs] = React.useState<any[]>([]);
-const [filteredDocs, setFilteredDocs] = React.useState<any[]>([]);
+// const [docs, setDocs] = React.useState<any[]>([]);
+// const [filteredDocs, setFilteredDocs] = React.useState<any[]>([]);
+const [docs, setDocs] = React.useState<IDocumentItem[]>([]);
+const [filteredDocs, setFilteredDocs] = React.useState<IDocumentItem[]>([]);
 const [selectedYear, setSelectedYear] = React.useState<string>(currentYear);
 const [selectedFile, setSelectedFile] = React.useState<string | null>(null);
 
@@ -36,34 +45,39 @@ const years = Array.from({ length: 4 }, (_, i) =>
     return spfi().using(SPFx(context));
   }, [context]);
 
-  React.useEffect(() => {
-    fetchDocuments();
-  }, []);
 
-  const fetchDocuments = async () => {
-    try {
-      const items = await sp.web.lists
-        .getByTitle("DigitalFlipbook")
-        .items
-        .select("Id", "FileLeafRef", "FileRef", "Year")
-        .filter("FSObjType eq 0 and substringof('.pdf', FileLeafRef)")();
 
-      setDocs(items);
-      const currentYearDocs = items.filter(
-          (item: any) => item.Year === currentYear
-        );
+ const fetchDocuments = async (): Promise<void> => {
+  try {
+    const items = await sp.web.lists
+      .getByTitle("DigitalFlipbook")
+      .items
+      .select("Id", "FileLeafRef", "FileRef", "Year")
+      .filter("FSObjType eq 0 and substringof('.pdf', FileLeafRef)")();
 
-        setFilteredDocs(currentYearDocs);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-    }
-  };
+    setDocs(items);
 
+  const currentYearDocs = items.filter(
+  item => item.Year === currentYear
+);
+    setFilteredDocs(currentYearDocs);
+
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+  }
+};
+
+React.useEffect(() => {
+  fetchDocuments().catch((error) => {
+    console.error("Error fetching documents:", error);
+  });
+}, []);
+  
   const handleYearChange = (year: string): void => {
   setSelectedYear(year);
 
   const filtered = docs.filter(
-    (item: any) => item.Year === year
+    (item: IDocumentItem) => item.Year === year
   );
 
   setFilteredDocs(filtered);
