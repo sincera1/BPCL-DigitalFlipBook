@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "doc-flipbook-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/docFlipbook/DocFlipbookWebPart.js",
+          "manifest": "./src/webparts/docFlipbook/DocFlipbookWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "DocFlipbookWebPartStrings": "lib/webparts/docFlipbook/loc/{locale}.js"
+  }
+}

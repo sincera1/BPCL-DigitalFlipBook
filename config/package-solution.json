@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "bpcl-doc-flip-book-client-side-solution",
+    "id": "2f4f5efe-3049-49ce-adb2-ec2c56e4fe14",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.21.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "bpcl-DocFlipBook description"
+      },
+      "longDescription": {
+        "default": "bpcl-DocFlipBook description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "bpcl-doc-flip-book Feature",
+        "description": "The feature that activates elements of the bpcl-doc-flip-book solution.",
+        "id": "35fd38ae-309b-40ce-9947-8c0111a0805b",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/bpcl-doc-flip-book.sppkg"
+  }
+}
