@@ -36,7 +36,7 @@ const [filteredDocs, setFilteredDocs] = React.useState<IDocumentItem[]>([]);
 const [selectedYear, setSelectedYear] = React.useState<string>(currentYear);
 const [selectedFile, setSelectedFile] = React.useState<string | null>(null);
 
-const years = Array.from({ length: 4 }, (_, i) =>
+const years = Array.from({ length: 3 }, (_, i) =>
   (new Date().getFullYear() - i).toString()
 );
 
@@ -48,9 +48,9 @@ const years = Array.from({ length: 4 }, (_, i) =>
 
 
  const fetchDocuments = async (): Promise<void> => {
-  try {
+  try { // Corp_DL_DigitalFlipBook
     const items = await sp.web.lists
-      .getByTitle("DigitalFlipbook")
+      .getByTitle("Corp_DL_DigitalFlipBook")
       .items
       .select("Id", "FileLeafRef", "FileRef", "Year")
       .filter("FSObjType eq 0 and substringof('.pdf', FileLeafRef)")();
