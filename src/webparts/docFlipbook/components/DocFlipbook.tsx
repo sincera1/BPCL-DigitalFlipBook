@@ -104,6 +104,7 @@ React.useEffect(() => {
         </div>
       </div>
     )}
+    <div className="px-4">
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 mt-3">
        {!selectedFile && (
           <h5 className="mb-0 text-nowrap">
@@ -164,6 +165,7 @@ React.useEffect(() => {
         />
       )}
 
+    </div>
     </div>
   );
 };
